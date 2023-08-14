@@ -3,6 +3,8 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 class ClientHandler extends Thread {
     DataInputStream in;
@@ -18,7 +20,7 @@ class ClientHandler extends Thread {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
         } catch (IOException e) {
-            System.out.println("Connection:" + e.getMessage());
+            System.out.println("Conexão:" + e.getMessage());
         }
     }
 
@@ -31,7 +33,7 @@ class ClientHandler extends Thread {
             out.writeUTF(message);
             out.flush();
         } catch (IOException e) {
-            System.out.println("sendMessage: " + e.getMessage());
+            System.out.println("Mensagem: " + e.getMessage());
         }
     }
 
@@ -47,10 +49,10 @@ class ClientHandler extends Thread {
                     String[] parts = data.split(" ", 2);
                     String targetUsername = parts[0].substring(1);
                     String message = parts[1];
-                    server.sendMessageToClient(targetUsername, username + ": " + message);
+                    server.sendMessageToClient(targetUsername, username + " às (" + getCurrentTime() + "h" + "): " + message);
                 } else {
-                    server.broadcastMessage(username + ": " + data, this);
-                }
+                    server.broadcastMessage(username + " às (" + getCurrentTime() + "h" + "): " + data, this);
+            }
             }
         } catch (EOFException e) {
             System.out.println("EOF:" + e.getMessage());
@@ -63,6 +65,11 @@ class ClientHandler extends Thread {
                 System.out.println("Erro ao tentar fechar o Socket");
             }
         }
+    }
+
+    private String getCurrentTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        return dateFormat.format(new Date());
     }
 
     public void close() {
